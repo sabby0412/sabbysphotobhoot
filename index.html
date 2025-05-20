@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sabby's Coquette Vintage Photobooth</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sabby's Coquette Cam</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <h1 class="vintage-title">Sabby's Vintage Coquette Photobooth</h1>
@@ -15,7 +15,7 @@
       <video id="video" autoplay playsinline></video>
       <div class="controls">
         <label class="toggle-switch">
-          <input type="checkbox" id="bwToggle">
+          <input type="checkbox" id="bwToggle" />
           <span class="slider"></span>
         </label>
         <span class="toggle-label">Black & White</span>
@@ -34,8 +34,17 @@
     </div>
   </div>
 
-  <canvas id="canvas" width="400" height="300" class="hidden"></canvas>
+  <canvas id="canvas" width="400" height="300"></canvas>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal">
+      <p>Do you want to keep this photo?</p>
+      <button id="keepPhotoBtn">Keep</button>
+      <button id="retakePhotoBtn">Retake</button>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
-
