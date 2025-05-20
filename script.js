@@ -1,88 +1,85 @@
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
-const takePhotoBtn = document.getElementById('takePhotoBtn');
-const useBtn = document.getElementById('useBtn');
-const retakeBtn = document.getElementById('retakeBtn');
-const downloadBtn = document.getElementById('downloadBtn');
+const takePhotoBtn = document.getElementById('takePhoto');
+const downloadStripBtn = document.getElementById('downloadStrip');
 const restartBtn = document.getElementById('restartBtn');
-const photoStrip = document.getElementById('photo-strip');
-const previewOptions = document.getElementById('preview-options');
-const toggleFilterBtn = document.getElementById('toggleFilterBtn');
+const strip = document.getElementById('strip');
+const bwToggle = document.getElementById('bwToggle');
 
-let stream = null;
-let currentFilter = false;
-let photoCount = 0;
+let photosTaken = 0;
+let photoData = [];
 
-async function initCamera() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
     video.srcObject = stream;
-  } catch (error) {
-    alert('Camera access denied or not available.');
-  }
-}
-
-initCamera();
-
-takePhotoBtn.addEventListener('click', () => {
-  canvas.getContext('2d').filter = currentFilter ? 'grayscale(100%)' : 'none';
-  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-  canvas.style.display = 'block';
-  video.style.display = 'none';
-  previewOptions.classList.remove('hidden');
-});
-
-useBtn.addEventListener('click', () => {
-  const img = document.createElement('img');
-  img.src = canvas.toDataURL('image/png');
-  photoStrip.appendChild(img);
-
-  photoCount++;
-  if (photoCount >= 4) {
-    downloadBtn.classList.remove('hidden');
-    restartBtn.classList.remove('hidden');
-  }
-
-  canvas.style.display = 'none';
-  video.style.display = 'block';
-  previewOptions.classList.add('hidden');
-});
-
-retakeBtn.addEventListener('click', () => {
-  canvas.style.display = 'none';
-  video.style.display = 'block';
-  previewOptions.classList.add('hidden');
-});
-
-toggleFilterBtn.addEventListener('click', () => {
-  currentFilter = !currentFilter;
-  toggleFilterBtn.textContent = 'Black & White: ' + (currentFilter ? 'ON' : 'OFF');
-});
-
-downloadBtn.addEventListener('click', () => {
-  const stripCanvas = document.createElement('canvas');
-  stripCanvas.width = 200;
-  stripCanvas.height = 4 * 150 + 60;
-
-  const ctx = stripCanvas.getContext('2d');
-  const images = photoStrip.querySelectorAll('img');
-  images.forEach((img, index) => {
-    ctx.drawImage(img, 0, index * 150, 200, 150);
+  })
+  .catch(err => {
+    alert('Camera access denied or not available. Please check your browser settings.');
   });
 
-  ctx.fillStyle = '#800020';
-  ctx.font = '16px Playfair Display';
-  ctx.fillText("Sabby's Cam", 40, stripCanvas.height - 10);
+takePhotoBtn.addEventListener('click', () => {
+  if (photosTaken >= 4) return;
 
-  const link = document.createElement('a');
-  link.download = 'photostrip.png';
-  link.href = stripCanvas.toDataURL();
-  link.click();
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  if (bwToggle.checked) {
+    let ctx = canvas.getContext('2d');
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      data[i] = data[i + 1] = data[i + 2] = avg;
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  const img = new Image();
+  img.src = canvas.toDataURL('image/png');
+  img.onload = () => {
+    strip.appendChild(img);
+    photoData.push(img.src);
+    photosTaken++;
+
+    if (photosTaken >= 4) {
+      downloadStripBtn.classList.remove('hidden');
+      restartBtn.classList.remove('hidden');
+      takePhotoBtn.classList.add('hidden');
+    }
+  };
+});
+
+downloadStripBtn.addEventListener('click', () => {
+  const stripCanvas = document.createElement('canvas');
+  stripCanvas.width = 200;
+  stripCanvas.height = 500;
+  const ctx = stripCanvas.getContext('2d');
+
+  photoData.forEach((src, i) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      ctx.drawImage(img, 0, i * 125, 200, 125);
+      if (i === photoData.length - 1) {
+        // Add "Sabby's Cam"
+        ctx.font = "20px Great Vibes";
+        ctx.fillStyle = "#800020";
+        ctx.textAlign = "center";
+        ctx.fillText("Sabby's Cam", 100, 490);
+
+        const a = document.createElement('a');
+        a.href = stripCanvas.toDataURL('image/png');
+        a.download = 'sabbys-strip.png';
+        a.click();
+      }
+    };
+  });
 });
 
 restartBtn.addEventListener('click', () => {
-  photoStrip.innerHTML = '';
-  photoCount = 0;
-  downloadBtn.classList.add('hidden');
+  strip.innerHTML = '';
+  photoData = [];
+  photosTaken = 0;
+  downloadStripBtn.classList.add('hidden');
   restartBtn.classList.add('hidden');
+  takePhotoBtn.classList.remove('hidden');
 });
