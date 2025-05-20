@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sabby's Coquette Vintage Photobooth</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <h1 class="vintage-title">Sabby's Coquette Vintage Photobooth</h1>
+
+  <div class="container">
+    <div class="camera-section">
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
+      <div class="button-group">
+        <button id="takePhotoBtn">Take Photo</button>
+        <button id="toggleFilterBtn">Black & White: OFF</button>
+      </div>
+      <div id="preview-options" class="hidden">
+        <p>Use this photo?</p>
+        <button id="useBtn">Use</button>
+        <button id="retakeBtn">Retake</button>
+      </div>
+      <p class="instructions">You can take 4 photos. When finished, click download!</p>
+    </div>
+
+    <div class="strip-section">
+      <div id="photo-strip" class="photo-strip"></div>
+      <button id="downloadBtn" class="hidden">Download Strip</button>
+      <button id="restartBtn" class="hidden">Restart</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
