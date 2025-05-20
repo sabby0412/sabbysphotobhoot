@@ -29,6 +29,10 @@ body {
   width: 400px;
   height: 300px;
   object-fit: cover;
+  transition: filter 0.3s ease;
+}
+.left-section video.bw {
+  filter: grayscale(100%);
 }
 
 .controls {
@@ -60,19 +64,20 @@ button:hover {
   align-items: center;
   background: white;
   border: 5px solid #800020;
-  padding: 10px;
+  padding: 10px 10px 40px;
   border-radius: 10px;
   min-height: 500px;
   width: 200px;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   position: relative;
+  gap: 10px;
+  overflow-y: auto;
 }
 
 .photo-strip img {
   width: 100%;
   border: 3px solid #f8f8f8;
   border-radius: 5px;
-  margin-bottom: 10px;
 }
 
 .strip-container {
@@ -150,8 +155,42 @@ input:checked + .slider:before {
   content: "Sabby's Cam";
   position: absolute;
   bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: 'Great Vibes', cursive;
   font-size: 16px;
   color: #800020;
+  pointer-events: none;
 }
+
+/* Modal Overlay for Confirm */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+.modal {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 300px;
+  font-family: 'Playfair Display', serif;
+}
+.modal button {
+  margin: 10px 15px 0 15px;
+  padding: 10px 20px;
+}
+
 
