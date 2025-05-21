@@ -1,131 +1,89 @@
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const takePhotoBtn = document.getElementById('takePhoto');
-const downloadStripBtn = document.getElementById('downloadStrip');
-const restartBtn = document.getElementById('restartBtn');
-const strip = document.getElementById('strip');
-const bwToggle = document.getElementById('bwToggle');
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const takePhotoBtn = document.getElementById("take-photo");
+const toggleFilterBtn = document.getElementById("toggle-filter");
+const afterCaptureButtons = document.getElementById("after-capture-buttons");
+const usePhotoBtn = document.getElementById("use-photo");
+const retakePhotoBtn = document.getElementById("retake-photo");
+const photoStrip = document.getElementById("photo-strip");
+const downloadStripBtn = document.getElementById("download-strip");
+const restartBtn = document.getElementById("restart");
 
-const confirmModal = document.getElementById('confirmModal');
-const keepPhotoBtn = document.getElementById('keepPhotoBtn');
-const retakePhotoBtn = document.getElementById('retakePhotoBtn');
+let stream = null;
+let filter = false;
+let photoCount = 0;
+let stripImages = [];
 
-let photosTaken = 0;
-let photoData = [];
-let tempPhotoSrc = null;
-
-// Access camera
 navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
+  .then(s => {
+    stream = s;
     video.srcObject = stream;
   })
   .catch(err => {
-    alert('Camera access denied or not available. Please check your browser settings.');
+    alert("Camera access denied or not available.");
+    console.error(err);
   });
 
-// Toggle black & white filter live on video
-bwToggle.addEventListener('change', () => {
-  if (bwToggle.checked) {
-    video.classList.add('bw');
-  } else {
-    video.classList.remove('bw');
-  }
+toggleFilterBtn.addEventListener("click", () => {
+  filter = !filter;
+  video.style.filter = filter ? "grayscale(100%)" : "none";
 });
 
-takePhotoBtn.addEventListener('click', () => {
-  if (photosTaken >= 4) return;
-
-  // Draw video frame to canvas
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  // If BW toggled, apply grayscale filter to canvas image data
-  if (bwToggle.checked) {
-    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-      data[i] = data[i + 1] = data[i + 2] = avg;
-    }
-    ctx.putImageData(imageData, 0, 0);
-  }
-
-  // Get image data url
-  tempPhotoSrc = canvas.toDataURL('image/png');
-
-  // Show confirm modal
-  confirmModal.classList.add('active');
-  takePhotoBtn.disabled = true;
-  bwToggle.disabled = true;
+takePhotoBtn.addEventListener("click", () => {
+  canvas.style.display = "block";
+  canvas.getContext("2d").filter = filter ? "grayscale(100%)" : "none";
+  canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+  afterCaptureButtons.style.display = "block";
+  takePhotoBtn.style.display = "none";
 });
 
-keepPhotoBtn.addEventListener('click', () => {
-  // Add photo to strip and data array
-  const img = new Image();
-  img.src = tempPhotoSrc;
-  img.onload = () => {
-    strip.appendChild(img);
-    photoData.push(tempPhotoSrc);
-    photosTaken++;
-
-    if (photosTaken >= 4) {
-      downloadStripBtn.classList.remove('hidden');
-      restartBtn.classList.remove('hidden');
-      takePhotoBtn.classList.add('hidden');
-    }
-  };
-
-  // Hide modal & re-enable buttons
-  confirmModal.classList.remove('active');
-  takePhotoBtn.disabled = false;
-  bwToggle.disabled = false;
+retakePhotoBtn.addEventListener("click", () => {
+  canvas.style.display = "none";
+  afterCaptureButtons.style.display = "none";
+  takePhotoBtn.style.display = "inline-block";
 });
 
-retakePhotoBtn.addEventListener('click', () => {
-  // Just hide modal & allow retake
-  confirmModal.classList.remove('active');
-  takePhotoBtn.disabled = false;
-  bwToggle.disabled = false;
+usePhotoBtn.addEventListener("click", () => {
+  if (photoCount >= 4) return;
+  const imageData = canvas.toDataURL("image/png");
+  const img = document.createElement("img");
+  img.src = imageData;
+  stripImages.push(img);
+  photoStrip.appendChild(img);
+  photoCount++;
+
+  canvas.style.display = "none";
+  afterCaptureButtons.style.display = "none";
+  takePhotoBtn.style.display = photoCount < 4 ? "inline-block" : "none";
 });
 
-downloadStripBtn.addEventListener('click', () => {
-  if (photoData.length === 0) return;
+downloadStripBtn.addEventListener("click", () => {
+  if (stripImages.length === 0) return;
+  const stripCanvas = document.createElement("canvas");
+  stripCanvas.width = 200;
+  stripCanvas.height = stripImages.length * 160 + 40;
 
-  // Create a canvas tall enough for all 4 photos stacked vertically
-  const stripCanvas = document.createElement('canvas');
-  const stripCtx = stripCanvas.getContext('2d');
-  const photoWidth = 200;
-  const photoHeight = 150;
-  stripCanvas.width = photoWidth;
-  stripCanvas.height = photoHeight * photoData.length;
+  const ctx = stripCanvas.getContext("2d");
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
-  // Draw each photo on the strip canvas vertically
-  let imagesLoaded = 0;
-  photoData.forEach((src, index) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      stripCtx.drawImage(img, 0, index * photoHeight, photoWidth, photoHeight);
-      imagesLoaded++;
-      if (imagesLoaded === photoData.length) {
-        // When all images drawn, trigger download
-        const link = document.createElement('a');
-        link.href = stripCanvas.toDataURL('image/png');
-        link.download = 'photo-strip.png';
-        link.click();
-      }
-    };
+  stripImages.forEach((img, i) => {
+    ctx.drawImage(img, 0, i * 160, 200, 150);
   });
+
+  ctx.fillStyle = "#800020";
+  ctx.font = "20px Pacifico";
+  ctx.fillText("Sabby's cam", 30, stripCanvas.height - 10);
+
+  const link = document.createElement("a");
+  link.download = "sabbys-cam-strip.png";
+  link.href = stripCanvas.toDataURL();
+  link.click();
 });
 
-restartBtn.addEventListener('click', () => {
-  // Reset everything
-  photosTaken = 0;
-  photoData = [];
-  strip.innerHTML = '';
-  downloadStripBtn.classList.add('hidden');
-  restartBtn.classList.add('hidden');
-  takePhotoBtn.classList.remove('hidden');
-  takePhotoBtn.disabled = false;
-  bwToggle.disabled = false;
+restartBtn.addEventListener("click", () => {
+  photoStrip.innerHTML = "";
+  photoCount = 0;
+  stripImages = [];
+  takePhotoBtn.style.display = "inline-block";
 });
