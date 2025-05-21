@@ -2,49 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sabby's Coquette Cam</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500&display=swap" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vintage Coquette Photobooth</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&family=Pacifico&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <h1 class="vintage-title">Sabby's Vintage Coquette Photobooth</h1>
+  <h1 class="vintage-title">Vintage Coquette Photobooth</h1>
+  <p class="sub-text">You can take 4 photos per strip</p>
 
-  <div class="main-container">
-    <div class="left-section">
-      <video id="video" autoplay playsinline></video>
-      <div class="controls">
-        <label class="toggle-switch">
-          <input type="checkbox" id="bwToggle" />
-          <span class="slider"></span>
-        </label>
-        <span class="toggle-label">Black & White</span>
-
-        <button id="takePhoto">Take Photo</button>
-        <button id="restartBtn" class="hidden">Restart</button>
+  <div class="container">
+    <div class="camera-section">
+      <video id="video" autoplay></video>
+      <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
+      <div class="buttons">
+        <button id="take-photo">Take Photo</button>
+        <button id="toggle-filter">Toggle Black & White</button>
+        <div id="after-capture-buttons" style="display: none;">
+          <button id="use-photo">Use Photo</button>
+          <button id="retake-photo">Retake</button>
+        </div>
       </div>
     </div>
 
-    <div class="right-section">
-      <div class="strip-container">
-        <div id="strip" class="photo-strip"></div>
-        <span class="strip-label">You can take 4 photos</span>
-        <button id="downloadStrip" class="hidden">Download Strip</button>
+    <div class="strip-section">
+      <div id="photo-strip">
+        <!-- 4 captured photos will go here -->
       </div>
-    </div>
-  </div>
-
-  <canvas id="canvas" width="400" height="300"></canvas>
-
-  <!-- Confirmation Modal -->
-  <div id="confirmModal" class="modal-overlay">
-    <div class="modal">
-      <p>Do you want to keep this photo?</p>
-      <button id="keepPhotoBtn">Keep</button>
-      <button id="retakePhotoBtn">Retake</button>
+      <p class="footer-text">Sabby's cam</p>
+      <div class="strip-buttons">
+        <button id="download-strip">Download Strip</button>
+        <button id="restart">Restart</button>
+      </div>
     </div>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
