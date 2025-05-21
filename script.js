@@ -30,9 +30,10 @@ toggleFilterBtn.addEventListener("click", () => {
 });
 
 takePhotoBtn.addEventListener("click", () => {
-  canvas.style.display = "block";
-  canvas.getContext("2d").filter = filter ? "grayscale(100%)" : "none";
-  canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+   canvas.style.display = "block";
+  const ctx = canvas.getContext("2d");
+  ctx.filter = filter ? "grayscale(100%)" : "none";
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   afterCaptureButtons.style.display = "block";
   takePhotoBtn.style.display = "none";
 });
